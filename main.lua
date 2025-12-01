@@ -34,6 +34,8 @@ local titles={
 }
 local n=1
 local dance=5
+local appendScores=(__queries.score!=nil)
+local q=__queries.q
 
 function _init()
     if (db) then
@@ -45,7 +47,10 @@ function _init()
             count+=1
         end
         local el=pushElement("p8text",{text="Home to "..count.." pages!",align="center"})
-        local el=pushElement("input",{id="input",placeholder="search query",enter=[[search(self.text)]],margin_left=2})
+        local el=pushElement("input",{id="input",placeholder="search query",enter=[[search(self.text)]],margin_left=2,text=query or ""})
+        if (q) then
+            search(q,true)
+        end
     else
         getElementById("availability"):set("text","Can't access the database")
     end
@@ -62,7 +67,7 @@ function _update()
     end
 end
 
-function pushResult(url,data)
+function pushResult(url,data,score)
     local el=pushElement("link")
     local title="No Title"
     local author=""
@@ -92,6 +97,12 @@ function pushResult(url,data)
     el:set("text",url)
     el:set("margin_left",2)
     el:set("color",5)
+    if (appendScores) then
+        local el=pushElement("p8text")
+        el:set("text","score: "..score)
+        el:set("margin_left",2)
+        el:set("color",5)
+    end
 end
 
 function push(str1,str2)
@@ -104,7 +115,7 @@ function merge(a,b)
     local res={}
     local left,right={},{}
     while i<=#a and j<=#b do
-        if (a[i].hits<b[j].hits) then
+        if (a[i].hits>b[j].hits) then
             add(res,a[i])
             i+=1
         else
@@ -139,8 +150,12 @@ function mergesort(table)
     return merge(left,right)
 end
 
-function search(query)
-    destroyElement("input")
+function search(query,querying)
+    if (not querying) then
+        if (query=="") query=" " -- returns nil if query == ""
+        openTab("?q="..packQuery(query),"self")
+        return
+    end
     local el=pushElement("title")
     el:set("text","Searching for: "..query)
     el:set("margin_left",2)
@@ -157,26 +172,35 @@ function search(query)
                 values=push(values,data.meta.author)
                 values=push(values,data.meta.url)
             end
+            values=values:lower()
             local count=0
-            if (query=="") then
+            if (query=="" or query==" ") then
                 count=1
             else
-                while true do
-                    local _,endindex=values:find(query, 1, true)
-                    if (endindex==nil) break
-                    values=values:sub(endindex+1,#values)
-                    count+=1
+                local queries=query:split(" ")
+                for i=0, #queries do
+                    local c=0
+                    local q=queries[i] or query --also search full string
+                    if (q!="") then
+                        while true do
+                            local _,endindex=values:find(q, 1, true)
+                            if (endindex==nil) break
+                            values=values:sub(endindex+1,#values)
+                            c+=1
+                        end
+                        values=(data.text or ""):lower()
+                        local n=0
+                        while true do
+                            local _,endindex=values:find(q, 1, true)
+                            if (endindex==nil) break
+                            values=values:sub(endindex+1,#values)
+                            n+=1
+                        end
+                        n=min(25,n)
+                        c+=n/10
+                        count+=c
+                    end
                 end
-                values=data.text or ""
-                local n=0
-                while true do
-                    local _,endindex=values:find(query, 1, true)
-                    if (endindex==nil) break
-                    values=values:sub(endindex+1,#values)
-                    n+=1
-                end
-                n=min(25,n)
-                count+=n/10
             end
             if (count>0) then
                 if (finds[url]==nil) finds[url]=0
@@ -188,8 +212,13 @@ function search(query)
             add(table,{url=k,hits=v})
         end
         table=mergesort(table)
+        if (#table>0) then
+            local results=pushElement("text",{text=#table.." results found",margin_left=2})
+        else
+            local results=pushElement("text",{text="no results found :(",margin_left=2})
+        end
         for i=1,#table do
-            pushResult(table[i].url,db[table[i].url])
+            pushResult(table[i].url,db[table[i].url],finds[table[i].url])
         end
     end
 end
