@@ -136,9 +136,11 @@ function search(query)
         local finds={}
         for url,data in pairs(db) do
             local values=""
-            values=push(values,data.meta.title)
-            values=push(values,data.meta.description)
-            values=push(values,data.meta.author)
+            if (data.meta) then
+                values=push(values,data.meta.title)
+                values=push(values,data.meta.description)
+                values=push(values,data.meta.author)
+            end
             values=push(values,data.meta.url)
             local count=0
             if (query=="") then
