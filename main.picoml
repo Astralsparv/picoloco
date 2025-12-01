@@ -2,6 +2,4 @@
 
 <title id="title">PicoLoco</title>
 <p8text id="availability" align="center">SEARCH ENGINE UNAVAILABLE</p8text>
-<input id="input" margin_left=2 enter="search(self.text)" placeholder="Search Query"></input>
-
 <script src="main.lua"></script>

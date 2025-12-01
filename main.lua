@@ -39,6 +39,13 @@ function _init()
     if (db) then
         local el=getElementById("availability")
         el:set("text","(online)")
+        local count=0
+
+        for _,_ in pairs(db) do
+            count+=1
+        end
+        local el=pushElement("p8text",{text="Home to "..count.." pages!",align="center"})
+        local el=pushElement("input",{id="input",placeholder="search query",enter=[[search(self.text)]],margin_left=2})
     else
         getElementById("availability"):set("text","Can't access the database")
     end
@@ -57,19 +64,27 @@ end
 
 function pushResult(url,data)
     local el=pushElement("link")
-    el:set("text",data.meta.title or "No Title")
+    local title="No Title"
+    local author=""
+    local description=""
+    if (data.meta) then
+        title=data.meta.title
+        author=data.meta.author
+        description=data.meta.description
+    end
+    el:set("text",title or "No Title")
     el:set("margin_left",2)
     el:set("margin_top",5)
     el:set("target",url)
-    if (data.meta.author!="") then
+    if (author!="") then
         local el=pushElement("p8text")
-        el:set("text",data.meta.author)
+        el:set("text",author)
         el:set("margin_left",2)
         el:set("color",5)
     end
-    if (data.meta.description!="") then
+    if (description!="") then
         local el=pushElement("p8text")
-        el:set("text",data.meta.description)
+        el:set("text",description)
         el:set("margin_left",2)
         el:set("color",5)
     end
@@ -140,8 +155,8 @@ function search(query)
                 values=push(values,data.meta.title)
                 values=push(values,data.meta.description)
                 values=push(values,data.meta.author)
+                values=push(values,data.meta.url)
             end
-            values=push(values,data.meta.url)
             local count=0
             if (query=="") then
                 count=1
