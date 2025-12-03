@@ -1,0 +1,15 @@
+text
+{
+margin_left=2
+}
+
+link
+{
+margin_left=2
+}
+
+.smalltext
+{
+font=2
+color=5
+}

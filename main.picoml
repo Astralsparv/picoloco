@@ -1,4 +1,5 @@
 <metadata title="PicoLoco" icon='--[[pod_type="gfx"]]unpod("b64:bHo0AC4AAAAuAAAA8gpweHUAQyAQEATwE0OQExcAE4ADBzADgANABADwABMgE5Bj0CPQI9Aj0BPwIw==")'></metadata>
+<style src="main.style"></style>
 
 <title id="title">PicoLoco</title>
 <p8text id="availability" align="center">SEARCH ENGINE UNAVAILABLE</p8text>

@@ -40,20 +40,20 @@ local q=__queries.q
 
 function _init()
     if (db) then
-        local el=getElementById("availability")
+        local el=dom.getElementById("availability")
         el:set("text","(online)")
         local count=0
 
         for _,_ in pairs(db) do
             count+=1
         end
-        local el=pushElement("p8text",{text="Home to "..count.." pages!",align="center"})
-        local el=pushElement("input",{id="input",placeholder="search query",enter=[[search(self.text)]],margin_left=2,text=query or ""})
+        local el=dom.pushElement("p8text",{text="Home to "..count.." pages!",align="center"})
+        local el=dom.pushElement("input",{id="input",placeholder="search query",enter=[[search(self.text)]],margin_left=2})
         if (q) then
             search(q,true)
         end
     else
-        getElementById("availability"):set("text","Can't access the database")
+        dom.getElementById("availability"):set("text","Can't access the database")
     end
 end
 
@@ -64,12 +64,12 @@ function _update()
         n+=1
         dance=0
         if (n>#titles) n=1 dance=5
-        getElementById("title"):set("text",titles[n])
+        dom.getElementById("title"):set("text",titles[n])
     end
 end
 
 function pushResult(url,data,score)
-    local el=pushElement("link")
+    local el=dom.pushElement("link")
     local title="No Title"
     local author=""
     local description=""
@@ -79,30 +79,25 @@ function pushResult(url,data,score)
         description=data.meta.description
     end
     el:set("text",title or "No Title")
-    el:set("margin_left",2)
     el:set("margin_top",5)
     el:set("target",url)
     if (author!="") then
-        local el=pushElement("p8text")
+        local el=dom.pushElement("text")
         el:set("text",author)
-        el:set("margin_left",2)
-        el:set("color",5)
+        el:set("class","smalltext")
     end
     if (description!="") then
-        local el=pushElement("p8text")
+        local el=dom.pushElement("text")
         el:set("text",description)
-        el:set("margin_left",2)
-        el:set("color",5)
+        el:set("class","smalltext")
     end
-    local el=pushElement("p8text")
+    local el=dom.pushElement("text")
     el:set("text",url)
-    el:set("margin_left",2)
-    el:set("color",5)
+    el:set("class","smalltext")
     if (appendScores) then
-        local el=pushElement("p8text")
+        local el=dom.pushElement("text")
         el:set("text","score: "..score)
-        el:set("margin_left",2)
-        el:set("color",5)
+        el:set("class","smalltext")
     end
 end
 
@@ -151,19 +146,19 @@ function mergesort(table)
     return merge(left,right)
 end
 
-function search(query,querying)
+function search(q,querying)
     if (not querying) then
-        if (query=="") query=" " -- returns nil if query == ""
-        openTab("?q="..packQuery(query),"self")
+        if (q=="") q=" " -- returns nil if query == ""
+        file.openPage("?q="..query.pack(q),"self")
         return
     end
-    local el=pushElement("title")
-    el:set("text","Searching for: "..query)
+    local el=dom.pushElement("title")
+    el:set("text","Searching for: "..q)
     el:set("margin_left",2)
     el:set("align","left")
     el:set("color",0)
     if (db) then
-        query=query:lower()
+        q=q:lower()
         local finds={}
         for url,data in pairs(db) do
             local values=""
@@ -175,13 +170,13 @@ function search(query,querying)
             end
             values=values:lower()
             local count=0
-            if (query=="" or query==" ") then
+            if (q=="" or q==" ") then
                 count=1
             else
-                local queries=query:split(" ")
+                local queries=q:split(" ")
                 for i=0, #queries do
                     local c=0
-                    local q=queries[i] or query --also search full string
+                    local q=queries[i] or q --also search full string
                     if (q!="") then
                         while true do
                             local _,endindex=values:find(q, 1, true)
@@ -215,9 +210,9 @@ function search(query,querying)
         end
         table=mergesort(table)
         if (#table>0) then
-            local results=pushElement("text",{text=#table.." results found",margin_left=2})
+            local results=dom.pushElement("text",{text=#table.." results found",margin_left=2})
         else
-            local results=pushElement("text",{text="no results found :(",margin_left=2})
+            local results=dom.pushElement("text",{text="no results found :(",margin_left=2})
         end
         for i=1,#table do
             pushResult(table[i].url,db[table[i].url],finds[table[i].url])
