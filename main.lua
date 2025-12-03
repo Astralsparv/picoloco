@@ -1,4 +1,5 @@
 local db=fetch("pages.pod")
+local hitWeight=2
 
 local titles={
     "|icoLoco",
@@ -205,11 +206,12 @@ function search(query,querying)
             if (count>0) then
                 if (finds[url]==nil) finds[url]=0
                 finds[url]+=count
+                finds[url]+=db[url].hits*hitWeight
             end
         end
         local table={}
         for k,v in pairs(finds) do
-            add(table,{url=k,hits=v})
+            add(table,{url=k,hits=v}) --hits = score, should rename
         end
         table=mergesort(table)
         if (#table>0) then
