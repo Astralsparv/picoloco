@@ -74,11 +74,11 @@ function pushResult(url,data,score)
     local author=""
     local description=""
     if (data.meta) then
-        title=data.meta.title
-        author=data.meta.author
-        description=data.meta.description
+        title=data.meta.title or url
+        author=data.meta.author or ""
+        description=data.meta.description or ""
     end
-    el:set("text",title or "No Title")
+    el:set("text",title)
     el:set("margin_top",5)
     el:set("target",url)
     if (author!="") then
@@ -88,6 +88,7 @@ function pushResult(url,data,score)
     end
     if (description!="") then
         local el=dom.pushElement("text")
+        printh("DESC "..description)
         el:set("text",description)
         el:set("class","smalltext")
     end
@@ -96,6 +97,7 @@ function pushResult(url,data,score)
     el:set("class","smalltext")
     if (appendScores) then
         local el=dom.pushElement("text")
+        printh("SCORE "..score)
         el:set("text","score: "..score)
         el:set("class","smalltext")
     end
